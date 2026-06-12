@@ -19,6 +19,8 @@ $config = array(
     'show_parent' => false,
     'show_hidden' => false,
     'directory_first' => true,
+    'default_sorting' => 'name', // 'name', 'size' or 'time'
+    'default_sort_order' => 'asc', // 'asc' or 'desc'
     'content_alignment' => 'center',
     'date_format' => 'd M Y H:i',
     'timezone' => 'Asia/Jakarta',
@@ -252,7 +254,7 @@ class PHPDirLister
 
 $pdl = new PHPDirLister($config);
 $items = $pdl->getListings('.' . (empty($pdl->getBrowse()) ? '' : '/' . $pdl->getBrowse()));
-$sorting = isset($_GET['s']) ? $_GET['s'] : null;
+$sorting = isset($_GET['s']) ? $_GET['s'] : $pdl->getConfig('default_sorting', 'name');
 
 switch ($sorting) {
     case 'size':
@@ -279,7 +281,7 @@ switch ($sorting) {
 
 date_default_timezone_set($pdl->getConfig('timezone', 'UTC'));
 
-$reverse = isset($_GET['r']) && $_GET['r'] === '1';
+$reverse = isset($_GET['r']) ? $_GET['r'] === '1' : $pdl->getConfig('default_sort_order', 'asc') === 'desc';
 $items = $reverse ? array_reverse($items) : $items;
 
 
@@ -473,9 +475,9 @@ if ($pdl->getConfig('show_parent') && $pdl->getPath() !== '/' && empty($pdl->get
 
         <ul id="header">
             <li>
-                <a href="<?php echo $pdl->buildLink(array('s' => 'size', 'r' => (!$reverse && $sorting === 'size') ? '1' : null)) ?>" class="size <?php if ($sorting == 'size') echo $reverse ? 'desc' : 'asc' ?>"><span>Size</span></a>
-                <a href="<?php echo $pdl->buildLink(array('s' => 'time', 'r' => (!$reverse && $sorting === 'time') ? '1' : null)) ?>" class="date <?php if ($sorting == 'time') echo $reverse ? 'desc' : 'asc' ?>"><span>Last Modified</span></a>
-                <a href="<?php echo $pdl->buildLink(array('s' =>  null, 'r' => (!$reverse && $sorting === 'name') ? '1' : null)) ?>" class="name <?php if ($sorting == 'name') echo $reverse ? 'desc' : 'asc' ?>"><span>Name</span></a>
+                <a href="<?php echo $pdl->buildLink(array('s' => 'size', 'r' => (!$reverse && $sorting === 'size') ? '1' : '0')) ?>" class="size <?php if ($sorting == 'size') echo $reverse ? 'desc' : 'asc' ?>"><span>Size</span></a>
+                <a href="<?php echo $pdl->buildLink(array('s' => 'time', 'r' => (!$reverse && $sorting === 'time') ? '1' : '0')) ?>" class="date <?php if ($sorting == 'time') echo $reverse ? 'desc' : 'asc' ?>"><span>Last Modified</span></a>
+                <a href="<?php echo $pdl->buildLink(array('s' => 'name', 'r' => (!$reverse && $sorting === 'name') ? '1' : '0')) ?>" class="name <?php if ($sorting == 'name') echo $reverse ? 'desc' : 'asc' ?>"><span>Name</span></a>
             </li>
         </ul>
 
